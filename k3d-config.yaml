@@ -1,0 +1,65 @@
+# k3d Master Cluster Configuration
+# Single unified cluster for GitLab, ArgoCD, Rancher, and future applications
+#
+# Design Philosophy:
+# - Direct localhost port exposure for each application
+# - No NGINX Ingress required - using NodePort services
+# - PersistentVolumes for dynamic storage (not host mounts)
+# - Scalable agents without cluster recreation
+# - Each application accessible on dedicated localhost port
+# - Let Kubernetes scheduler handle workload distribution
+# - Ports added dynamically using add-port.sh script (no cluster recreation needed)
+# - Works seamlessly over Tailscale SSH tunneling
+
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: master
+
+# Cluster Topology
+# 1 server: Control plane (API server, scheduler, controller)
+# 3 agents: Worker nodes for application workloads
+servers: 1
+agents: 3
+
+# k3s Version - Pinned for stability
+image: rancher/k3s:v1.28.5-k3s1
+
+# k3s Configuration
+options:
+  k3s:
+    extraArgs:
+      # Disable Traefik (not needed for direct port exposure)
+      - arg: --disable=traefik
+        nodeFilters:
+          - server:*
+
+  k3d:
+    wait: true
+    timeout: "360s"
+    disableLoadbalancer: false
+
+# Port Mappings
+# Keep this minimal - application ports are added dynamically via add-port.sh
+# This allows adding new applications without cluster recreation
+ports: []
+
+# Container Registry
+# Local registry for custom Docker images
+# Accessible at localhost:5000 from host machine
+# Usage: docker tag myapp:latest localhost:5000/myapp:latest
+#        docker push localhost:5000/myapp:latest
+registries:
+  create:
+    name: master-registry
+    host: "0.0.0.0"
+    hostPort: "5000"
+
+# Environment Variables
+env:
+  - envVar: K3S_KUBECONFIG_OUTPUT=/tmp/k3d-master-kubeconfig
+    nodeFilters:
+      - server:*
+  - envVar: K3S_KUBECONFIG_MODE=644
+    nodeFilters:
+      - server:*
