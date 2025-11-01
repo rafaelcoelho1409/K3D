@@ -1,0 +1,65 @@
+# ArgoCD Image Updater Helm Chart Values
+# Configured for k3d master cluster
+# Automatically updates image tags in Git when new images are pushed to Docker Registry
+#
+# How it works:
+#   1. Watches Docker Registry for new image tags
+#   2. Detects new images pushed by GitLab CI
+#   3. Updates helm_k3d/values.yaml in Git with new image:tag
+#   4. ArgoCD detects Git change and syncs/deploys
+#
+# Registry Configuration:
+#   - Docker Registry: docker-registry.docker-registry.svc.cluster.local:5000
+#   - ArgoCD Server: argocd-server.argocd.svc.cluster.local
+
+# Image Updater Configuration
+config:
+  # ArgoCD API configuration
+  argocd:
+    # Use internal ArgoCD server service
+    serverAddress: "http://argocd-server.argocd.svc.cluster.local"
+    insecure: true
+    plaintext: true
+
+  # Registries configuration - Docker Registry
+  registries:
+    - name: docker-registry
+      api_url: http://docker-registry.docker-registry.svc.cluster.local:5000
+      prefix: docker-registry.docker-registry.svc.cluster.local:5000
+      insecure: true
+      default: true
+
+  # Git commit configuration
+  git:
+    user: argocd-image-updater
+    email: argocd-image-updater@coelho.local
+
+# Resources (minimal for local dev)
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+# Metrics
+metrics:
+  enabled: true
+  service:
+    type: ClusterIP
+
+# Log level (debug, info, warn, error)
+logLevel: info
+
+# Git configuration
+git:
+  commit:
+    # Commit message template for image updates
+    messageTemplate: |
+      build: update {{ .AppName }} image to {{ .NewTag }}
+
+      Updated by ArgoCD Image Updater
+      Image: {{ .Image }}
+      Old tag: {{ .OldTag }}
+      New tag: {{ .NewTag }}

@@ -83,6 +83,10 @@ minio:
 gitlab:
   # Webservice (main GitLab application)
   webservice:
+    extraConfiguration:
+      registry:
+        auth:
+          realm: http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/jwt/auth
     minReplicas: 1
     maxReplicas: 1
     service:
