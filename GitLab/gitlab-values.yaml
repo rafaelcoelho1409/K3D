@@ -10,9 +10,9 @@ global:
     gitlab:
       name: localhost
       https: false
-    registry:
-      name: localhost
-      https: false
+    # registry:  # Disabled - using k3d master-registry instead
+    #   name: localhost
+    #   https: false
     minio:
       name: localhost
       https: false
@@ -83,10 +83,6 @@ minio:
 gitlab:
   # Webservice (main GitLab application)
   webservice:
-    extraConfiguration:
-      registry:
-        auth:
-          realm: http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/jwt/auth
     minReplicas: 1
     maxReplicas: 1
     service:
@@ -153,19 +149,9 @@ gitlab:
       limits:
         memory: 1Gi
 
-# Container Registry
+# Container Registry - DISABLED (using k3d master-registry instead)
 registry:
-  enabled: true
-  service:
-    type: NodePort
-    nodePort:
-      http: 30050
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      memory: 256Mi
+  enabled: false
 
 # GitLab Runner
 gitlab-runner:
