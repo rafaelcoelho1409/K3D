@@ -12,7 +12,7 @@ provider "kubernetes" {
 # Configured to use the kubeconfig from the K3D cluster
 # The K3D cluster automatically switches context when created
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     config_path = "~/.kube/config"
   }
 }
