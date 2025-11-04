@@ -1,0 +1,151 @@
+# LocalStack Helm Values
+# LocalStack Community Edition for AWS service simulation
+# Perfect for Terraform local development and testing
+
+# Service configuration
+service:
+  type: NodePort
+  # Main edge service port (all AWS services accessible here)
+  edgeService:
+    targetPort: 4566
+    nodePort: 30566
+  # Optional: External services port (deprecated but some tools still use it)
+  externalServicePorts:
+    start: 4510
+    end: 4560
+
+# Image configuration
+image:
+  repository: localstack/localstack
+  tag: "3.0"  # Latest stable version
+  pullPolicy: IfNotPresent
+
+# Debug mode (set to true for verbose logging)
+debug: false
+
+# Enable persistence for LocalStack data
+persistence:
+  enabled: true
+  storageClass: "local-path"
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+  # Path where LocalStack stores data
+  mountPath: /var/lib/localstack
+
+# Resource limits for local development
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+
+# Environment variables for LocalStack configuration
+# See: https://docs.localstack.cloud/references/configuration/
+extraEnvVars:
+  # Core LocalStack settings
+  - name: SERVICES
+    # List of services to start (empty = all community services)
+    # Common services: s3,dynamodb,sqs,sns,lambda,ec2,rds,secretsmanager,sts,iam
+    value: ""
+
+  # Note: PERSISTENCE is automatically set by persistence.enabled: true above
+  # Note: DEBUG is automatically set by debug: false above
+
+  # Hostname configuration
+  - name: LOCALSTACK_HOST
+    value: "localhost.localstack.cloud:30566"
+
+  # Disable SSL verification for local development
+  - name: DISABLE_CORS_CHECKS
+    value: "1"
+
+  # Enable extended services (some additional features)
+  - name: LAMBDA_EXECUTOR
+    value: "local"
+
+  # Docker configuration disabled (not available in K3D environment)
+  # Lambda will use local executor instead of docker
+  # - name: DOCKER_HOST
+  #   value: "unix:///var/run/docker.sock"
+
+  # AWS endpoint URL (for terraform/aws-cli configuration)
+  - name: AWS_ENDPOINT_URL
+    value: "http://localhost:30566"
+
+  # Skip infrastructure setup
+  - name: SKIP_INFRA_DOWNLOADS
+    value: "0"
+
+  # Eager service loading (start all services immediately)
+  - name: EAGER_SERVICE_LOADING
+    value: "0"
+
+# Volume mounts for Docker socket disabled (not compatible with K3D)
+# K3D nodes are containers themselves and don't expose docker.sock
+# Lambda will use local executor instead
+# volumes:
+#   - name: docker-socket
+#     hostPath:
+#       path: /var/run/docker.sock
+#       type: Socket
+#
+# volumeMounts:
+#   - name: docker-socket
+#     mountPath: /var/run/docker.sock
+
+# Readiness and liveness probes
+startupProbe:
+  httpGet:
+    path: /_localstack/health
+    port: 4566
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 30
+
+livenessProbe:
+  httpGet:
+    path: /_localstack/health
+    port: 4566
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /_localstack/health
+    port: 4566
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Security context
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  runAsNonRoot: false  # LocalStack needs some privileged operations
+  allowPrivilegeEscalation: true
+
+# Pod annotations
+podAnnotations:
+  description: "LocalStack - AWS service emulator for local development"
+
+# Number of replicas (LocalStack doesn't support HA, keep at 1)
+replicaCount: 1
+
+# Node selector (optional)
+nodeSelector: {}
+
+# Tolerations (optional)
+tolerations: []
+
+# Affinity rules (optional)
+affinity: {}

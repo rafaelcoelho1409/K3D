@@ -1,0 +1,42 @@
+# K3D Cluster Configuration
+cluster_name  = "master"
+k3s_version   = "v1.28.5-k3s1"
+servers       = 1
+agents        = 3
+registry_port = 5000
+
+# Service Installation Flags
+# Set to false to skip installation of specific services
+install_argocd              = true
+install_argocd_image_updater = true
+install_gitlab              = true
+install_rancher             = true
+install_localstack          = true
+
+# ArgoCD Configuration
+argocd_host_port = 9080
+argocd_node_port = 30090
+
+# GitLab Configuration
+gitlab_web_host_port      = 8090
+gitlab_web_node_port      = 30082
+gitlab_ssh_host_port      = 2222
+gitlab_ssh_node_port      = 30022
+gitlab_registry_host_port = 5050
+gitlab_registry_node_port = 30050
+
+# Rancher Configuration
+rancher_http_host_port  = 7080
+rancher_http_node_port  = 30080
+rancher_https_host_port = 7443
+rancher_https_node_port = 30443
+rancher_bootstrap_password = "admin"  # Change on first login
+
+# LocalStack Configuration
+localstack_host_port = 4566
+localstack_node_port = 30566
+
+# GitLab Access Token for ArgoCD Image Updater (optional)
+# Generate from GitLab: Settings > Access Tokens > Project Access Token
+# Required scopes: write_repository
+# gitlab_access_token = "your-gitlab-token-here"
