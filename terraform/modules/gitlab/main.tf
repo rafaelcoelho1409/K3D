@@ -47,3 +47,23 @@ resource "null_resource" "wait_for_gitlab" {
     command = "kubectl wait --namespace ${var.namespace} --for=condition=ready pod --selector=app=webservice --timeout=600s || echo 'Warning: Timeout waiting for webservice'"
   }
 }
+
+# Patch GitLab services with specific NodePort values
+# The GitLab Helm chart doesn't always respect NodePort values in values.yaml
+resource "null_resource" "patch_gitlab_services" {
+  depends_on = [null_resource.wait_for_gitlab]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      # Patch webservice workhorse port (main UI - port 8181)
+      kubectl patch service ${var.release_name}-webservice-default -n ${var.namespace} --type='json' -p='[
+        {"op": "replace", "path": "/spec/ports/1/nodePort", "value": ${var.web_node_port}}
+      ]' || echo "Warning: Failed to patch webservice port"
+
+      # Patch gitlab-shell SSH port
+      kubectl patch service ${var.release_name}-gitlab-shell -n ${var.namespace} --type='json' -p='[
+        {"op": "replace", "path": "/spec/ports/0/nodePort", "value": ${var.ssh_node_port}}
+      ]' || echo "Warning: Failed to patch SSH port"
+    EOT
+  }
+}
