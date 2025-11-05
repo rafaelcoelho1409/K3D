@@ -17,28 +17,42 @@ Before running this Terraform configuration, ensure you have the following insta
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.6.0
 - [k3d](https://k3d.io/) >= 5.0.0
-- [kubectl](https://kubernetes.io/docs/tasks/tools/) >= 1.28.0
+- [kubectl](https://kubernetes.io/docs/tasks/tools/) >= 1.28.0 (**Required** - used for cluster readiness checks, patching service ports, and kubeconfig management)
 - [helm](https://helm.sh/docs/intro/install/) >= 3.12.0
 - [Docker](https://docs.docker.com/get-docker/) >= 20.10.0
 
+**Note:** `kubectl` is essential for this setup as it's used by Terraform provisioners to:
+- Wait for cluster API readiness
+- Patch GitLab service ports (webservice and SSH)
+- Patch Rancher service ports (HTTP and HTTPS)
+- Clean up kubeconfig contexts during fresh installations
+
 ## Quick Start
 
-### 1. Initialize Terraform
+### Fresh Installation (Recommended)
+
+For a **fresh installation** (no existing cluster or state), use the automated script:
+
+```bash
+cd terraform
+./fresh-start.sh
+```
+
+This script handles:
+1. Complete cleanup (cluster, state, kubeconfig)
+2. Two-stage deployment (prevents connection errors)
+3. Automatic initialization and deployment
+
+**Why two-stage deployment?** The Kubernetes provider needs the cluster to exist before it can connect. The script creates the cluster first, then deploys services.
+
+### Standard Deployment
+
+If you already have a working setup and just want to update:
 
 ```bash
 cd terraform
 terraform init
-```
-
-### 2. Review the Plan
-
-```bash
 terraform plan
-```
-
-### 3. Apply the Configuration
-
-```bash
 terraform apply
 ```
 
@@ -48,6 +62,8 @@ This will:
 1. Create the K3D cluster (takes 2-3 minutes)
 2. Install all services (takes 15-20 minutes total)
 3. Configure port mappings and auto-restart
+
+**Note:** For fresh installations without an existing cluster, use `./fresh-start.sh` instead to avoid connection errors.
 
 ### 4. Access Your Services
 
@@ -199,6 +215,22 @@ Installs LocalStack for AWS emulation.
 
 ## Troubleshooting
 
+### Fresh Installation: Connection Refused Error
+
+If you see errors like `dial tcp 127.0.0.1:80: connect: connection refused` during fresh installation:
+
+```bash
+# Use the fresh-start script (recommended)
+./fresh-start.sh
+
+# Or manually perform two-stage deployment:
+terraform init
+terraform apply -target=module.k3d_cluster
+terraform apply
+```
+
+This occurs because the Kubernetes provider tries to connect before the cluster exists. The two-stage approach solves this.
+
 ### Cluster Creation Fails
 ```bash
 # Check Docker is running
@@ -207,8 +239,13 @@ docker info
 # Check existing clusters
 k3d cluster list
 
-# Delete existing cluster if needed
+# Complete fresh start (removes everything)
+./fresh-start.sh
+
+# Or manual cleanup
 k3d cluster delete master
+terraform state rm $(terraform state list)
+terraform destroy
 terraform apply
 ```
 

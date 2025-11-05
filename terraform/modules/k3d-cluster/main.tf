@@ -59,11 +59,33 @@ resource "k3d_cluster" "master" {
 }
 
 # Wait for cluster to be ready
+# This ensures API is accessible and kubeconfig is valid
 resource "null_resource" "wait_for_cluster" {
   depends_on = [k3d_cluster.master]
 
   provisioner "local-exec" {
-    command = "kubectl wait --for=condition=Ready nodes --all --timeout=300s --context=k3d-${var.cluster_name}"
+    command = <<-EOT
+      # Wait for API to respond
+      for i in {1..30}; do
+        if kubectl cluster-info --context=k3d-${var.cluster_name} >/dev/null 2>&1; then
+          echo "API ready, waiting for nodes..."
+          kubectl wait --for=condition=Ready nodes --all --timeout=120s --context=k3d-${var.cluster_name}
+          exit 0
+        fi
+        echo "Waiting for API... ($i/30)"
+        sleep 2
+      done
+      exit 1
+    EOT
+  }
+}
+
+# Create alias for backward compatibility
+resource "null_resource" "wait_for_api" {
+  depends_on = [null_resource.wait_for_cluster]
+
+  provisioner "local-exec" {
+    command = "echo 'Cluster API ready'"
   }
 }
 

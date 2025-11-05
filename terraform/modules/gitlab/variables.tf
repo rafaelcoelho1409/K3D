@@ -44,3 +44,9 @@ variable "values_file" {
   type        = string
   default     = ""
 }
+
+variable "cluster_ready" {
+  description = "Signal that the cluster API is ready (dependency)"
+  type        = string
+  default     = ""
+}

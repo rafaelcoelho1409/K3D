@@ -82,7 +82,9 @@ module "argocd" {
   # Use external values file from the module directory
   values_file = "${path.module}/modules/argocd/values.yaml"
 
-  depends_on = [module.k3d_cluster]
+  # Explicitly depend on cluster API being ready
+  cluster_ready = module.k3d_cluster.cluster_ready
+  depends_on    = [module.k3d_cluster]
 }
 
 # ArgoCD Image Updater Module
@@ -114,7 +116,9 @@ module "gitlab" {
   # Use external values file from the module directory
   values_file = "${path.module}/modules/gitlab/values.yaml"
 
-  depends_on = [module.k3d_cluster]
+  # Explicitly depend on cluster API being ready
+  cluster_ready = module.k3d_cluster.cluster_ready
+  depends_on    = [module.k3d_cluster]
 }
 
 # Rancher Module
@@ -130,7 +134,9 @@ module "rancher" {
   # Use external values file from the module directory
   values_file = "${path.module}/modules/rancher/values.yaml"
 
-  depends_on = [module.k3d_cluster]
+  # Explicitly depend on cluster API being ready
+  cluster_ready = module.k3d_cluster.cluster_ready
+  depends_on    = [module.k3d_cluster]
 }
 
 # LocalStack Module
@@ -144,5 +150,12 @@ module "localstack" {
   # Use external values file from the module directory
   values_file = "${path.module}/modules/localstack/values.yaml"
 
-  depends_on = [module.k3d_cluster]
+  # Explicitly depend on cluster API being ready
+  cluster_ready = module.k3d_cluster.cluster_ready
+  depends_on    = [module.k3d_cluster]
 }
+
+#To destroy all resources
+#k3d cluster delete master
+#terraform state rm $(terraform state list)
+#terraform destroy

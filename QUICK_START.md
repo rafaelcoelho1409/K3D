@@ -1,25 +1,61 @@
 # Quick Start Guide
 
+## Prerequisites
+
+Ensure you have these tools installed (see [README.md](./README.md) for version requirements):
+
+- Terraform
+- k3d
+- **kubectl** (Required - used for cluster checks and patching service ports)
+- Helm
+- Docker
+
 ## Installation
 
-### 1. Initialize Terraform
+### Fresh Installation (Recommended)
+
+For a **fresh installation** with no existing cluster:
+
+```bash
+cd terraform
+./fresh-start.sh
+```
+
+The script automatically handles:
+- Complete cleanup of old clusters and state
+- Two-stage deployment (prevents connection errors)
+- Initialization and deployment
+
+**Why use this?** Prevents `connection refused` errors that occur when the Kubernetes provider tries to connect before the cluster exists.
+
+### Manual Installation Steps
+
+If you prefer manual control or are updating an existing setup:
+
+#### 1. Initialize Terraform
 ```bash
 cd terraform
 terraform init
 ```
 
-### 2. Review the Plan
+#### 2. Fresh Installation - Two-Stage Deployment
+For fresh installations without an existing cluster:
 ```bash
-terraform plan
+# Stage 1: Create cluster first
+terraform apply -target=module.k3d_cluster
+
+# Stage 2: Deploy all services
+terraform apply
 ```
 
-### 3. Deploy Everything
+#### 3. Standard Update (Existing Cluster)
+If you already have a cluster running:
 ```bash
 terraform apply
 # Type 'yes' when prompted
 ```
 
-### 4. Get Service URLs
+#### 4. Get Service URLs
 ```bash
 terraform output summary
 ```
@@ -125,6 +161,17 @@ terraform apply
 ```bash
 terraform destroy
 # Type 'yes' when prompted
+```
+
+### Fresh Start (Clean Everything)
+```bash
+# Automated script (recommended)
+./fresh-start.sh
+
+# Or manual cleanup
+k3d cluster delete master
+terraform state rm $(terraform state list)
+terraform destroy
 ```
 
 ## File Locations

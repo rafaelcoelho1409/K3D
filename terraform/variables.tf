@@ -2,7 +2,7 @@
 variable "cluster_name" {
   description = "Name of the K3D cluster"
   type        = string
-  default     = "master-tf"
+  default     = "master"
 }
 
 variable "k3s_version" {

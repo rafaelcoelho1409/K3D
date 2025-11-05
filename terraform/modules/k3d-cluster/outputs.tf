@@ -22,3 +22,8 @@ output "registry_endpoint" {
   description = "Endpoint for the K3D registry"
   value       = "localhost:${var.registry_port}"
 }
+
+output "cluster_ready" {
+  description = "Signals that cluster API is ready"
+  value       = null_resource.wait_for_api.id
+}

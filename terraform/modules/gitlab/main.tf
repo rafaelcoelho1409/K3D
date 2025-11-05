@@ -19,6 +19,9 @@ terraform {
 resource "kubernetes_namespace" "gitlab" {
   metadata {
     name = var.namespace
+    annotations = {
+      "cluster-ready" = var.cluster_ready
+    }
   }
 }
 

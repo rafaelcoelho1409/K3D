@@ -24,12 +24,17 @@ The Terraform configuration is **95% compatible** with Windows. This guide cover
    scoop install k3d
    ```
 
-3. **kubectl**
+3. **kubectl** (**Required**)
    ```powershell
    choco install kubernetes-cli
    # OR
    scoop install kubectl
    ```
+
+   **Why Required?** kubectl is used by Terraform provisioners to:
+   - Wait for cluster API readiness (`kubectl cluster-info`, `kubectl wait`)
+   - Patch service ports for GitLab and Rancher (`kubectl patch`)
+   - Manage kubeconfig contexts (`kubectl config`)
 
 4. **Helm**
    ```powershell
@@ -139,23 +144,86 @@ Terraform's `~` expands correctly on both platforms.
 
 ## Running on Windows
 
-### PowerShell (Recommended)
+### Fresh Installation
+
+**Note:** The `fresh-start.sh` script is a Bash script and won't run directly in PowerShell/CMD.
+
+**Option 1: Use WSL (Windows Subsystem for Linux)**
+
+If you have WSL installed with Docker integration:
+```bash
+# In WSL terminal
+cd /mnt/c/path/to/K3D/terraform
+./fresh-start.sh
+```
+
+**Option 2: Manual Two-Stage Deployment**
+
+For fresh installations on Windows without WSL, use the manual two-stage approach:
+
+#### PowerShell (Recommended)
 
 ```powershell
 # Navigate to terraform directory
 cd C:\path\to\K3D\terraform
 
-# Initialize
+# Clean up old cluster (if exists)
+k3d cluster delete master
+
+# Clean up Terraform state
+$stateList = terraform state list
+if ($stateList) {
+    terraform state rm $stateList
+}
+Remove-Item -Force terraform.tfstate* -ErrorAction SilentlyContinue
+
+# Two-stage deployment
 terraform init
-
-# Plan
-terraform plan
-
-# Apply
+terraform apply -target=module.k3d_cluster -auto-approve
 terraform apply
 
 # After apply, manually set auto-restart (optional)
-docker ps -aq --filter "name=k3d-master_tf" | ForEach-Object {
+docker ps -aq --filter "name=k3d-master" | ForEach-Object {
+    docker update --restart=unless-stopped $_
+}
+```
+
+#### Command Prompt (CMD)
+
+```cmd
+cd C:\path\to\K3D\terraform
+
+REM Clean up old cluster
+k3d cluster delete master
+
+REM Clean up Terraform state
+FOR /F %i IN ('terraform state list') DO terraform state rm %i
+del terraform.tfstate*
+
+REM Two-stage deployment
+terraform init
+terraform apply -target=module.k3d_cluster -auto-approve
+terraform apply
+
+REM After apply, set auto-restart (optional)
+FOR /F %i IN ('docker ps -aq --filter "name=k3d-master"') DO docker update --restart=unless-stopped %i
+```
+
+### Standard Updates (Existing Cluster)
+
+If you already have a cluster running and just want to update:
+
+#### PowerShell
+
+```powershell
+# Navigate to terraform directory
+cd C:\path\to\K3D\terraform
+
+# Apply changes
+terraform apply
+
+# After apply, manually set auto-restart (optional)
+docker ps -aq --filter "name=k3d-master" | ForEach-Object {
     docker update --restart=unless-stopped $_
 }
 ```

@@ -24,3 +24,17 @@ server:
 configs:
   params:
     server.insecure: true
+
+  # RBAC configuration
+  # Fix for "Unable to load data: permission denied" error
+  rbac:
+    # Default policy for authenticated users
+    # role:admin = full access (recommended for local development)
+    # role:readonly = read-only access (for production)
+    policy.default: role:admin
+
+    # Custom RBAC policies (optional - uncomment to add custom roles)
+    # policy.csv: |
+    #   p, role:developer, applications, *, */*, allow
+    #   p, role:developer, repositories, *, *, allow
+    #   g, my-team, role:developer

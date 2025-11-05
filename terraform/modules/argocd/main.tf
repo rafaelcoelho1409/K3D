@@ -15,6 +15,9 @@ terraform {
 resource "kubernetes_namespace" "argocd" {
   metadata {
     name = var.namespace
+    annotations = {
+      "cluster-ready" = var.cluster_ready
+    }
   }
 }
 
