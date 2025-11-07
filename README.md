@@ -1,4 +1,4 @@
-# K3D Master Cluster - Terraform Configuration
+# Building a local Kubernetes cluster with DevOps tools using Terraform
 
 This Terraform configuration replicates your K3D cluster setup with all services installed and configured automatically.
 
