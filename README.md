@@ -11,6 +11,12 @@ This Terraform configuration replicates your K3D cluster setup with all services
 - **Rancher**: Kubernetes management platform
 - **LocalStack**: AWS service emulator for local development
 
+## Architecture Diagram
+
+![DevOps Tools on K3D Cluster with Terraform](diagrams/terraform_k3d_diagram.png)
+
+The diagram above illustrates how Terraform orchestrates the deployment of all services through Helm into the K3D cluster, including the infrastructure layer (Docker Engine, K3D Cluster, Registry) and the Kubernetes services layer (Management tools and GitOps/CI/CD tools).
+
 ## Prerequisites
 
 Before running this Terraform configuration, ensure you have the following installed:
