@@ -65,7 +65,7 @@ The Terraform configuration is **95% compatible** with Windows. This guide cover
 
 ### Auto-Restart on Reboot
 
-**Issue:** One command in `modules/k3d-cluster/main.tf` uses Linux-specific shell syntax:
+**Issue:** One command in `modules/k3d/main.tf` uses Linux-specific shell syntax:
 
 ```bash
 docker update --restart=unless-stopped $(docker ps -aq --filter 'name=k3d-${var.cluster_name}') 2>/dev/null || true
@@ -97,7 +97,7 @@ FOR /F %i IN ('docker ps -aq --filter "name=k3d-master_tf"') DO docker update --
 
 **Alternative (Recommended for Windows):**
 
-Edit `terraform/modules/k3d-cluster/main.tf` and comment out the auto-restart resource:
+Edit `terraform/modules/k3d/main.tf` and comment out the auto-restart resource:
 
 ```hcl
 # Configure auto-restart for cluster containers

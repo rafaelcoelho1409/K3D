@@ -68,16 +68,16 @@ Each service has a values YAML file you can edit:
 
 ```bash
 # Customize ArgoCD
-nano modules/argocd/argocd-values.yaml
+nano modules/argocd/values.yaml
 
 # Customize GitLab
-nano modules/gitlab/gitlab-values.yaml
+nano modules/gitlab/values.yaml
 
 # Customize Rancher
-nano modules/rancher/rancher-values.yaml
+nano modules/rancher/values.yaml
 
 # Customize LocalStack
-nano modules/localstack/localstack-values.yaml
+nano modules/localstack/values.yaml
 
 # Apply changes
 terraform apply
@@ -88,10 +88,10 @@ terraform apply
 **Option 1: Copy to Terraform (Recommended)**
 ```bash
 # Copy your existing customized files
-cp ../ArgoCD/argocd-values.yaml modules/argocd/
-cp ../GitLab/gitlab-values.yaml modules/gitlab/
-cp ../Rancher/rancher-values.yaml modules/rancher/
-cp ../LocalStack/localstack-values.yaml modules/localstack/
+cp ../ArgoCD/argocd-values.yaml modules/argocd/values.yaml
+cp ../GitLab/gitlab-values.yaml modules/gitlab/values.yaml
+cp ../Rancher/rancher-values.yaml modules/rancher/values.yaml
+cp ../LocalStack/localstack-values.yaml modules/localstack/values.yaml
 ```
 
 **Option 2: Reference Original Files**
@@ -177,11 +177,11 @@ terraform destroy
 ## File Locations
 
 ### Values Files (Edit These!)
-- ArgoCD: `modules/argocd/argocd-values.yaml`
-- ArgoCD Image Updater: `modules/argocd-image-updater/image-updater-values.yaml`
-- GitLab: `modules/gitlab/gitlab-values.yaml`
-- Rancher: `modules/rancher/rancher-values.yaml`
-- LocalStack: `modules/localstack/localstack-values.yaml`
+- ArgoCD: `modules/argocd/values.yaml`
+- ArgoCD Image Updater: `modules/argocd-image-updater/values.yaml`
+- GitLab: `modules/gitlab/values.yaml`
+- Rancher: `modules/rancher/values.yaml`
+- LocalStack: `modules/localstack/values.yaml`
 
 ### Configuration Files
 - Main config: `main.tf`
@@ -225,7 +225,7 @@ terraform output
 
 ## Example: Customize GitLab Resources
 
-**File:** `modules/gitlab/gitlab-values.yaml`
+**File:** `modules/gitlab/values.yaml`
 
 ```yaml
 gitlab:

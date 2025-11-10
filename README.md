@@ -147,26 +147,27 @@ terraform/
 ├── providers.tf                 # Provider configuration
 ├── versions.tf                  # Version requirements
 ├── terraform.tfvars.example     # Example variables
+├── fresh-start.sh               # Automated fresh installation script
 ├── README.md                    # This file
 ├── HELM_VALUES_GUIDE.md         # Guide for customizing Helm values
 └── modules/
-    ├── k3d-cluster/             # K3D cluster module
+    ├── k3d/                     # K3D cluster module
     ├── argocd/
-    │   ├── argocd-values.yaml   # ← Edit to customize ArgoCD
+    │   ├── values.yaml          # ← Edit to customize ArgoCD
     │   ├── main.tf
     │   ├── outputs.tf
     │   └── variables.tf
     ├── argocd-image-updater/
-    │   ├── image-updater-values.yaml  # ← Edit to customize Image Updater
+    │   ├── values.yaml          # ← Edit to customize Image Updater
     │   └── ...
     ├── gitlab/
-    │   ├── gitlab-values.yaml   # ← Edit to customize GitLab
+    │   ├── values.yaml          # ← Edit to customize GitLab
     │   └── ...
     ├── rancher/
-    │   ├── rancher-values.yaml  # ← Edit to customize Rancher
+    │   ├── values.yaml          # ← Edit to customize Rancher
     │   └── ...
     └── localstack/
-        ├── localstack-values.yaml  # ← Edit to customize LocalStack
+        ├── values.yaml          # ← Edit to customize LocalStack
         └── ...
 ```
 

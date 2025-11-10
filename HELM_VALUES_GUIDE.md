@@ -24,11 +24,11 @@ Each module directory contains a values YAML file:
 ```
 terraform/modules/
 ├── argocd/
-│   ├── argocd-values.yaml          ← Edit this file
+│   ├── values.yaml          ← Edit this file
 │   ├── main.tf
 │   └── ...
 ├── gitlab/
-│   ├── gitlab-values.yaml          ← Edit this file
+│   ├── values.yaml          ← Edit this file
 │   ├── main.tf
 │   └── ...
 ```
@@ -40,7 +40,7 @@ module "argocd" {
   source = "./modules/argocd"
 
   # Uses the YAML file from the module directory
-  values_file = "${path.module}/modules/argocd/argocd-values.yaml"
+  values_file = "${path.module}/modules/argocd/values.yaml"
 }
 ```
 
@@ -52,7 +52,7 @@ To customize a service's configuration:
 
 ```bash
 # Example: Edit ArgoCD values
-nano terraform/modules/argocd/argocd-values.yaml
+nano terraform/modules/argocd/values.yaml
 ```
 
 2. **Apply the changes:**
@@ -67,15 +67,15 @@ That's it! Terraform will use your updated YAML file.
 
 | Service | Values File Location |
 |---------|---------------------|
-| ArgoCD | `modules/argocd/argocd-values.yaml` |
-| ArgoCD Image Updater | `modules/argocd-image-updater/image-updater-values.yaml` |
-| GitLab | `modules/gitlab/gitlab-values.yaml` |
-| Rancher | `modules/rancher/rancher-values.yaml` |
-| LocalStack | `modules/localstack/localstack-values.yaml` |
+| ArgoCD | `modules/argocd/values.yaml` |
+| ArgoCD Image Updater | `modules/argocd-image-updater/values.yaml` |
+| GitLab | `modules/gitlab/values.yaml` |
+| Rancher | `modules/rancher/values.yaml` |
+| LocalStack | `modules/localstack/values.yaml` |
 
 ### Example: Customizing ArgoCD
 
-**File:** `modules/argocd/argocd-values.yaml`
+**File:** `modules/argocd/values.yaml`
 
 ```yaml
 # Increase replicas for high availability
@@ -108,7 +108,7 @@ If you already have customized values files from the original setup, you can use
 
 **Option A: Copy to module directory (Recommended)**
 ```bash
-cp /path/to/my-custom-argocd-values.yaml terraform/modules/argocd/argocd-values.yaml
+cp /path/to/my-custom-argocd-values.yaml terraform/modules/argocd/values.yaml
 ```
 
 **Option B: Reference external file**
@@ -140,7 +140,7 @@ module "argocd" {
   cluster_name   = var.cluster_name
   node_port_http = var.argocd_node_port
 
-  # values_file = "${path.module}/modules/argocd/argocd-values.yaml"  # Commented out
+  # values_file = "${path.module}/modules/argocd/values.yaml"  # Commented out
 
   depends_on = [module.k3d_cluster]
 }
@@ -196,7 +196,7 @@ You can combine both approaches using Terraform's `templatefile()` function:
 
 ### Example: Template YAML File
 
-**File:** `modules/argocd/argocd-values.yaml.tpl`
+**File:** `modules/argocd/values.yaml.tpl`
 
 ```yaml
 server:
@@ -213,7 +213,7 @@ server:
 ```hcl
 resource "helm_release" "argocd" {
   values = [
-    templatefile("${path.module}/argocd-values.yaml.tpl", {
+    templatefile("${path.module}/values.yaml.tpl", {
       replicas  = 3
       node_port = var.node_port_http
     })
@@ -227,7 +227,7 @@ This approach combines the readability of YAML with the power of Terraform varia
 
 ### ArgoCD: Enable HA Mode
 
-**File:** `modules/argocd/argocd-values.yaml`
+**File:** `modules/argocd/values.yaml`
 
 ```yaml
 server:
@@ -242,7 +242,7 @@ controller:
 
 ### GitLab: Increase Resources
 
-**File:** `modules/gitlab/gitlab-values.yaml`
+**File:** `modules/gitlab/values.yaml`
 
 ```yaml
 gitlab:
@@ -258,7 +258,7 @@ gitlab:
 
 ### Rancher: Custom TLS
 
-**File:** `modules/rancher/rancher-values.yaml`
+**File:** `modules/rancher/values.yaml`
 
 ```yaml
 tls: ingress
@@ -271,7 +271,7 @@ ingress:
 
 ### LocalStack: Enable Pro Features
 
-**File:** `modules/localstack/localstack-values.yaml`
+**File:** `modules/localstack/values.yaml`
 
 ```yaml
 image:
@@ -291,12 +291,12 @@ extraEnvVars:
 
 1. **Check file path:**
    ```bash
-   ls -la terraform/modules/argocd/argocd-values.yaml
+   ls -la terraform/modules/argocd/values.yaml
    ```
 
 2. **Validate YAML syntax:**
    ```bash
-   yamllint terraform/modules/argocd/argocd-values.yaml
+   yamllint terraform/modules/argocd/values.yaml
    ```
 
 3. **Check Terraform plan:**
@@ -347,9 +347,10 @@ If you're migrating from the shell script setup:
 
 1. **Copy your existing values files:**
    ```bash
-   cp ArgoCD/argocd-values.yaml terraform/modules/argocd/
-   cp GitLab/gitlab-values.yaml terraform/modules/gitlab/
-   # ... etc
+   cp ArgoCD/argocd-values.yaml terraform/modules/argocd/values.yaml
+   cp GitLab/gitlab-values.yaml terraform/modules/gitlab/values.yaml
+   cp Rancher/rancher-values.yaml terraform/modules/rancher/values.yaml
+   cp LocalStack/localstack-values.yaml terraform/modules/localstack/values.yaml
    ```
 
 2. **Verify they're being used:**

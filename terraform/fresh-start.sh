@@ -14,7 +14,7 @@ k3d cluster delete master 2>/dev/null || echo "Cluster already deleted"
 # 2. Clean Docker containers
 echo ""
 echo "Step 2: Cleaning Docker containers..."
-docker ps -a | grep k3d | awk '{print $1}' | xargs -r docker rm -f 2>/dev/null || true
+docker ps -a | grep k3d-master | awk '{print $1}' | xargs -r docker rm -f 2>/dev/null || true
 
 # 3. Remove all Terraform state
 echo ""

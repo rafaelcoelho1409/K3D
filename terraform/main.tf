@@ -15,7 +15,7 @@
 
 # K3D Cluster Module
 module "k3d_cluster" {
-  source = "./modules/k3d-cluster"
+  source = "./modules/k3d"
 
   cluster_name  = var.cluster_name
   k3s_version   = var.k3s_version
